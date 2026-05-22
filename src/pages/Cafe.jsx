@@ -57,7 +57,6 @@ export default function Cafe() {
   const [amountPaid, setAmountPaid] = useState('');
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
-  const [error, setError] = useState('');
   const [changeMessage, setChangeMessage] = useState('');
   const [transactionDialog, setTransactionDialog] = useState({ open: false, type: 'success', title: '', message: '' });
   const canvasRef = useRef(null);

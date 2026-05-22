@@ -5,11 +5,11 @@ This folder contains the React version of the But First, Coffee website.
 ## What it does
 
 - Landing page at `/`
-- Staff login at `/login`
+- Admin login at `/login`
 - Customer menu and checkout at `/menu`
 - Admin dashboard at `/admin`
 
-The React app still talks to the PHP backend in `../bfc` for login, products, and orders.
+The React app now uses Supabase for auth and data, which makes it suitable for Netlify deployment.
 
 ## Setup
 
@@ -31,45 +31,38 @@ Build for production:
 npm run build
 ```
 
-## API configuration
+## Supabase configuration
 
-Set the backend URL with `REACT_APP_API_BASE` before starting or building the app.
-
-Local example:
+Set these variables before starting or building the app:
 
 ```bash
-REACT_APP_API_BASE=http://localhost/webdev/bfc
+REACT_APP_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 ```
 
-Live example:
-
-```bash
-REACT_APP_API_BASE=https://your-domain.com/bfc
-```
-
-The API layer reads this value from `src/services/api.js`.
+The API layer reads these values from `src/services/supabaseClient.js`.
 
 ## Deployment notes
 
 - Deploy the React build output from `build/`.
 - Make sure your host supports React routing or uses a rewrite to `index.html`.
-- Keep the PHP backend online at the URL you set in `REACT_APP_API_BASE`.
-- Enable CORS on the backend if the frontend and backend are on different domains.
+- Keep Supabase online and add the anon key/url in Netlify environment variables.
+- Use the included `public/_redirects` file for React Router.
 
 ## Free deployment options (quick)
 
-1. Netlify (recommended for static builds). Build locally or let Netlify build by connecting your repo to Netlify. Set build command to `npm run build`, publish directory to `build`, and add `REACT_APP_API_BASE=https://your-backend.example` in Site settings → Environment. If the backend is on a different origin, enable CORS on the PHP endpoints.
+1. Netlify (recommended for this React + Supabase setup). Connect the repo to Netlify, set the build command to `npm run build`, publish directory to `build`, and add `REACT_APP_SUPABASE_URL` plus `REACT_APP_SUPABASE_ANON_KEY` in Site settings → Environment.
 
-2. Vercel. Connect the repo, set the Framework Preset to `Create React App`, and add `REACT_APP_API_BASE` in Project Settings. Vercel provides a free subdomain and supports custom domains.
+2. Vercel. Connect the repo, set the Framework Preset to `Create React App`, and add the same Supabase environment variables in Project Settings.
 
-3. Cloudflare Pages. Connect the repo, set the build command to `npm run build`, output directory to `build`, and add `REACT_APP_API_BASE` as an environment variable in the Pages settings.
+3. Cloudflare Pages. Connect the repo, set the build command to `npm run build`, output directory to `build`, and add the Supabase environment variables in the Pages settings.
 
-4. GitHub Pages (simple, no env vars at deploy time). Run `npm run build` locally, then push the `build/` contents to the `gh-pages` branch or use the `gh-pages` package. Because you cannot set runtime env vars in static GH Pages, set `REACT_APP_API_BASE` locally before building.
+4. GitHub Pages is not a good fit here because you need Supabase env vars and router rewrites.
 
 Common checklist before going live:
 
-- Ensure `REACT_APP_API_BASE` points to the live PHP backend URL.
-- Confirm the backend endpoints (`log-in.php`, `store-api.php`, `admin-api.php`) are reachable and CORS-enabled if needed.
+- Ensure `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` are set in your deployment host.
+- Confirm the Supabase tables exist and the admin auth user has `role: admin` in metadata.
 - Add HTTPS (Netlify/Vercel/Cloudflare provide certificates automatically).
 - Optionally add a custom domain and update DNS as instructed by the host.
 
@@ -82,4 +75,4 @@ If you want, I can generate the exact Netlify/Vercel step-by-step with screensho
 - `src/pages/Login.jsx` - Staff login
 - `src/pages/Menu.jsx` - Ordering flow
 - `src/pages/Admin.jsx` - Admin dashboard
-- `src/services/api.js` - Backend API calls
+- `src/services/api.js` - Supabase data layer

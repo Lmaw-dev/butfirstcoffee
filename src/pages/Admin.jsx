@@ -9,7 +9,7 @@ export default function Admin() {
   const [orders, setOrders] = useState([]);
   const [staff, setStaff] = useState([]);
   const [showAddStaffForm, setShowAddStaffForm] = useState(false);
-  const [staffForm, setStaffForm] = useState({ name: '', role: '', username: '', password: '', active: true });
+  const [staffForm, setStaffForm] = useState({ name: '', role: '', username: '', active: true });
   const [staffEditingId, setStaffEditingId] = useState(null);
   const [storageStatus, setStorageStatus] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +92,7 @@ export default function Admin() {
           alert('Staff added');
         }
       }
-      setStaffForm({ name: '', role: '', username: '', password: '', active: true });
+      setStaffForm({ name: '', role: '', username: '', active: true });
       setStaffEditingId(null);
       setShowAddStaffForm(false);
     } catch (err) {
@@ -103,7 +103,7 @@ export default function Admin() {
   };
 
   const handleEditStaff = (s) => {
-    setStaffForm({ name: s.name, role: s.role, username: s.username, password: '', active: !!s.active });
+    setStaffForm({ name: s.name, role: s.role, username: s.username, active: !!s.active });
     setStaffEditingId(s.id);
     setShowAddStaffForm(true);
   };
@@ -345,7 +345,7 @@ export default function Admin() {
                       <td>
                         <div className="order-items">
                           {Array.isArray(order.items) ? order.items.map((it, i) => {
-                            const prod = products.find(p => p.id == it.id || p.id == it.product_id || p.name == it.name);
+                            const prod = products.find((p) => String(p.id) === String(it.id) || String(p.id) === String(it.product_id) || p.name === it.name);
                             return (
                               <div key={i} className="order-item">
                                 {prod && (
@@ -545,7 +545,7 @@ export default function Admin() {
               onClick={() => {
                 setShowAddStaffForm(!showAddStaffForm);
                 setStaffEditingId(null);
-                setStaffForm({ name: '', role: '', username: '', password: '', active: true });
+                setStaffForm({ name: '', role: '', username: '', active: true });
               }}
             >
               {showAddStaffForm ? 'Cancel' : '+ Add Staff'}
@@ -572,11 +572,6 @@ export default function Admin() {
               </div>
 
               <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="staff-password">Password {staffEditingId ? '(leave blank to keep)' : '*'}</label>
-                  <input id="staff-password" name="password" value={staffForm.password} onChange={handleStaffInputChange} type="password" disabled={submitting} />
-                </div>
-
                 <div className="form-group checkbox">
                   <label htmlFor="staff-active">
                     <input id="staff-active" name="active" type="checkbox" checked={staffForm.active} onChange={handleStaffInputChange} disabled={submitting} /> Active

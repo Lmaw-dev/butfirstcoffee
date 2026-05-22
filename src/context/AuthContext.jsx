@@ -1,4 +1,19 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../services/supabaseClient';
+
+function mapSupabaseUser(user) {
+  if (!user) return null;
+
+  const role = user.user_metadata?.role || 'staff';
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.user_metadata?.name || user.user_metadata?.full_name || user.email,
+    role,
+    isAdmin: role === 'admin',
+  };
+}
 
 const AuthContext = createContext();
 
@@ -11,9 +26,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
+        const { data } = await supabase.auth.getSession();
+        const sessionUser = mapSupabaseUser(data.session?.user);
+
+        if (sessionUser) {
+          setUser(sessionUser);
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -24,6 +41,22 @@ export function AuthProvider({ children }) {
     };
 
     checkAuth();
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      const sessionUser = mapSupabaseUser(session?.user);
+
+      setUser(sessionUser);
+      setIsAuthenticated(Boolean(sessionUser));
+      setLoading(false);
+
+      if (sessionUser) {
+        localStorage.setItem('user', JSON.stringify(sessionUser));
+      } else {
+        localStorage.removeItem('user');
+      }
+    });
+
+    return () => data.subscription.unsubscribe();
   }, []);
 
   const login = (userData) => {
@@ -32,10 +65,14 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('user');
+    }
   };
 
   return (

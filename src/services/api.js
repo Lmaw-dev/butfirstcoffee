@@ -1,168 +1,98 @@
-// API Service Layer - Communicates with PHP Backend
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost/webdev/bfc';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
+
+function ensureConfigured() {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase client is not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.');
+  }
+}
+
+function stripUndefined(payload) {
+  return Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== undefined));
+}
+
+function normalizeProduct(product) {
+  return { ...product, available: product.available !== false };
+}
+
+function normalizeOrder(order) {
+  return { ...order, items: Array.isArray(order.items) ? order.items : [], status: order.status || 'pending' };
+}
+
+function normalizeStaff(staff) {
+  return { ...staff, active: Boolean(staff.active) };
+}
 
 const api = {
-  // AUTHENTICATION
-  login: async (username, password) => {
+  login: async (email, password) => {
     try {
-      const formData = new URLSearchParams();
-      formData.append('login_id', username);
-      formData.append('password', password);
+      ensureConfigured();
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
 
-      const response = await fetch(`${API_BASE}/log-in.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
+      const role = data.user?.user_metadata?.role || 'staff';
+      return {
+        success: true,
+        staff: {
+          id: data.user.id,
+          name: data.user.user_metadata?.name || data.user.email,
+          email: data.user.email,
+          role,
+          isAdmin: role === 'admin',
         },
-        credentials: 'include',
-        body: formData,
-      });
-
-      // Parse JSON when possible, otherwise return text as error
-      const contentType = response.headers.get('content-type') || '';
-      let data;
-      if (contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          // Non-JSON response (HTML redirect or error) — include it in the thrown error
-          throw new Error(text || 'Login failed (non-JSON response)');
-        }
-      }
-
-      if (!response.ok) {
-        throw new Error(data.message || data.error || 'Login failed');
-      }
-
-      return data;
+      };
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     }
   },
 
-  // PRODUCTS / MENU
   getProducts: async () => {
     try {
-      const response = await fetch(`${API_BASE}/store-api.php?action=get_products`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch products');
-      }
-
-      return data;
+      ensureConfigured();
+      const { data, error } = await supabase.from('products').select('*').order('id', { ascending: true });
+      if (error) throw error;
+      return (data || []).map(normalizeProduct);
     } catch (error) {
       console.error('Get products error:', error);
       throw error;
     }
   },
 
-  // ORDERS
   createOrder: async (items, total, paid, changeAmount) => {
     try {
-      const response = await fetch(`${API_BASE}/store-api.php?action=add_order`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          items,
-          total,
-          paid,
-          change_amount: changeAmount,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create order');
-      }
-
-      return data;
+      ensureConfigured();
+      const { data, error } = await supabase
+        .from('orders')
+        .insert({ items, total, paid, change_amount: changeAmount, status: 'pending' })
+        .select('*')
+        .single();
+      if (error) throw error;
+      return { success: true, id: data.id, order: normalizeOrder(data) };
     } catch (error) {
       console.error('Create order error:', error);
       throw error;
     }
   },
 
-  // ADMIN ENDPOINTS
   initStorage: async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=init_storage`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to initialize storage');
-      }
-
-      return data;
+      ensureConfigured();
+      return { success: true, message: 'Supabase connection ready. Create the schema in the Supabase SQL editor.' };
     } catch (error) {
       console.error('Init storage error:', error);
       throw error;
     }
   },
 
-  getAdminProducts: async () => {
-    try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=get_products`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch admin products');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Get admin products error:', error);
-      throw error;
-    }
-  },
+  getAdminProducts: async () => api.getProducts(),
 
   addProduct: async (productData) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=add_product`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(productData),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to add product');
-      }
-
-      return data;
+      ensureConfigured();
+      const payload = stripUndefined({ ...productData, available: productData.available !== false });
+      const { data, error } = await supabase.from('products').insert(payload).select('*').single();
+      if (error) throw error;
+      return { success: true, id: data.id, product: normalizeProduct(data) };
     } catch (error) {
       console.error('Add product error:', error);
       throw error;
@@ -171,22 +101,11 @@ const api = {
 
   updateProduct: async (productId, productData) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=update_product&id=${productId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(productData),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update product');
-      }
-
-      return data;
+      ensureConfigured();
+      const payload = stripUndefined({ ...productData, available: productData.available !== false });
+      const { data, error } = await supabase.from('products').update(payload).eq('id', productId).select('*').single();
+      if (error) throw error;
+      return { success: true, product: normalizeProduct(data) };
     } catch (error) {
       console.error('Update product error:', error);
       throw error;
@@ -195,44 +114,22 @@ const api = {
 
   deleteProduct: async (productId) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=delete_product&id=${productId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete product');
-      }
-
-      return data;
+      ensureConfigured();
+      const { error } = await supabase.from('products').delete().eq('id', productId);
+      if (error) throw error;
+      return { success: true };
     } catch (error) {
       console.error('Delete product error:', error);
       throw error;
     }
   },
 
-  // ADMIN ORDERS
   getAdminOrders: async (limit = 200) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=get_orders&limit=${encodeURIComponent(limit)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch orders');
-      }
-
-      return data;
+      ensureConfigured();
+      const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(limit);
+      if (error) throw error;
+      return (data || []).map(normalizeOrder);
     } catch (error) {
       console.error('Get admin orders error:', error);
       throw error;
@@ -241,21 +138,10 @@ const api = {
 
   updateOrderStatus: async (orderId, status) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=update_order_status`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ id: orderId, status }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update order status');
-      }
-
-      return data;
+      ensureConfigured();
+      const { data, error } = await supabase.from('orders').update({ status }).eq('id', orderId).select('*').single();
+      if (error) throw error;
+      return { success: true, order: normalizeOrder(data) };
     } catch (error) {
       console.error('Update order status error:', error);
       throw error;
@@ -264,43 +150,22 @@ const api = {
 
   clearOrders: async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=clear_orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to clear orders');
-      }
-
-      return data;
+      ensureConfigured();
+      const { error } = await supabase.from('orders').delete().gte('id', 0);
+      if (error) throw error;
+      return { success: true };
     } catch (error) {
       console.error('Clear orders error:', error);
       throw error;
     }
   },
 
-  // STAFF MANAGEMENT
   getStaff: async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=get_staff`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch staff');
-      }
-
-      return data;
+      ensureConfigured();
+      const { data, error } = await supabase.from('staff').select('*').order('id', { ascending: true });
+      if (error) throw error;
+      return (data || []).map(normalizeStaff);
     } catch (error) {
       console.error('Get staff error:', error);
       throw error;
@@ -309,21 +174,16 @@ const api = {
 
   addStaff: async (staffData) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=add_staff`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(staffData),
+      ensureConfigured();
+      const payload = stripUndefined({
+        name: staffData.name,
+        role: staffData.role,
+        username: staffData.username,
+        active: staffData.active !== false,
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to add staff');
-      }
-
-      return data;
+      const { data, error } = await supabase.from('staff').insert(payload).select('*').single();
+      if (error) throw error;
+      return { success: true, id: data.id, staff: normalizeStaff(data) };
     } catch (error) {
       console.error('Add staff error:', error);
       throw error;
@@ -332,21 +192,16 @@ const api = {
 
   updateStaff: async (staffId, staffData) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=update_staff`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ id: staffId, ...staffData }),
+      ensureConfigured();
+      const payload = stripUndefined({
+        name: staffData.name,
+        role: staffData.role,
+        username: staffData.username,
+        active: staffData.active,
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update staff');
-      }
-
-      return data;
+      const { data, error } = await supabase.from('staff').update(payload).eq('id', staffId).select('*').single();
+      if (error) throw error;
+      return { success: true, staff: normalizeStaff(data) };
     } catch (error) {
       console.error('Update staff error:', error);
       throw error;
@@ -355,21 +210,10 @@ const api = {
 
   deleteStaff: async (staffId) => {
     try {
-      const response = await fetch(`${API_BASE}/admin-api.php?action=delete_staff`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ id: staffId }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete staff');
-      }
-
-      return data;
+      ensureConfigured();
+      const { error } = await supabase.from('staff').delete().eq('id', staffId);
+      if (error) throw error;
+      return { success: true };
     } catch (error) {
       console.error('Delete staff error:', error);
       throw error;

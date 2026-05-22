@@ -1,21 +1,16 @@
-# Deploy But First, Coffee (React + PHP) to Live Server
+# Deploy But First, Coffee (React + Supabase) to Live Server
 
-This app has 2 parts:
+This app now has 2 parts:
 - Frontend: `bfc-react` (React build)
-- Backend: `bfc` (PHP + MySQL APIs)
+- Backend: Supabase auth + Postgres
 
 ## 1) Prepare production config
 
 Edit `bfc-react/.env.production`:
 
 ```env
-REACT_APP_API_BASE=https://YOUR_DOMAIN_HERE/bfc
-```
-
-Use your real domain, for example:
-
-```env
-REACT_APP_API_BASE=https://butfirstcoffee.com/bfc
+REACT_APP_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 ```
 
 ## 2) Build the React app
@@ -23,55 +18,37 @@ REACT_APP_API_BASE=https://butfirstcoffee.com/bfc
 From `bfc-react`:
 
 ```bash
-npm install
 npm run build
 ```
 
 Output will be in `bfc-react/build`.
 
-## 3) Upload to hosting
+## 3) Deploy on Netlify
 
-Recommended structure on Apache/cPanel hosting:
-- Upload React build contents to `public_html/` (or your web root)
-- Upload PHP backend folder as `public_html/bfc/`
-
-Final URLs should look like:
-- Frontend: `https://your-domain.com/`
-- API: `https://your-domain.com/bfc/store-api.php?action=get_products`
+Recommended Netlify settings:
+- Build command: `npm run build`
+- Publish directory: `build`
+- Environment variables: `REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_ANON_KEY`
 
 ## 4) React Router support
 
-This project includes `public/.htaccess` for SPA routing. CRA copies it into build.
+This project includes `public/_redirects` so SPA routes work on refresh.
 
-If deep links return 404 (example `/admin`), make sure `.htaccess` exists in your web root and `mod_rewrite` is enabled.
+## 5) Supabase setup
 
-## 5) Database setup
+Run the SQL in `SUPABASE_SETUP.md`, then create an admin auth user in Supabase Auth with `role: admin` in the user metadata.
 
-On live server:
-- Create MySQL database and user
-- Update `bfc/db-config.php` with live DB credentials
-- Open `https://your-domain.com/bfc/db-setup.php` once to initialize schema/data
+## 6) Post-deploy checklist
 
-## 6) API and auth checks
-
-Verify these endpoints:
-- `https://your-domain.com/bfc/store-api.php?action=get_products`
-- `https://your-domain.com/bfc/log-in.php`
-- `https://your-domain.com/bfc/admin-api.php?action=get_products`
-
-Because frontend and backend are on the same domain in this setup, cookies and session auth work cleanly.
-
-## 7) Post-deploy checklist
-
-- HTTPS is active
-- Admin login works
-- Orders can be created
+- HTTPS is active on Netlify
+- Supabase auth login works
+- Orders can be created anonymously
 - Admin can update order status
-- Staff management works
+- Staff management works for authenticated admin
 - Product images load from `/bfc/images/...`
 
 ## Troubleshooting
 
-- Blank API errors: confirm `REACT_APP_API_BASE` in `.env.production` and rebuild.
-- `/admin` 404 on refresh: fix `.htaccess` rewrite.
-- Login/session issues: ensure frontend and backend are same origin or CORS + credentials are configured correctly.
+- Blank API errors: confirm `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` are set in Netlify and rebuild.
+- `/admin` 404 on refresh: confirm `public/_redirects` is deployed.
+- Login/session issues: make sure the admin auth user exists in Supabase Auth and has metadata `role: admin`.

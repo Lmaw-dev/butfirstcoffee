@@ -6,7 +6,7 @@ import './Login.css';
 import BackButton from '../components/BackButton';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,14 +19,14 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const result = await api.login(username, password);
+      const result = await api.login(email, password);
       
       if (result.success) {
         if (result.staff?.isAdmin) {
           login(result.staff);
           navigate('/admin');
         } else {
-          logout();
+          await logout();
           setError('Admin access only. Please use an admin account.');
         }
       } else {
@@ -53,13 +53,13 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="email">Email</label>
             <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               required
               disabled={loading}
             />
@@ -88,7 +88,7 @@ export default function Login() {
         </form>
 
         <div className="login-footer">
-          <p>This login is for admin access only</p>
+          <p>This login is for admin access only. Use the Supabase Auth user configured with role = admin.</p>
         </div>
       </div>
     </div>
