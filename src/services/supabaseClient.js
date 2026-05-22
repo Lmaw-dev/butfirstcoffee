@@ -147,9 +147,10 @@ export const supabase = {
         state.query.append(column, `gte.${value}`);
         return builder;
       },
-      insert(payload) {
+      insert(payload, options = {}) {
         state.method = 'POST';
         state.body = payload;
+        state.prefer = options.prefer || 'return=representation';
         return builder;
       },
       update(payload) {

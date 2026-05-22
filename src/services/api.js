@@ -61,13 +61,13 @@ const api = {
   createOrder: async (items, total, paid, changeAmount) => {
     try {
       ensureConfigured();
+      const orderId = Date.now();
       const { data, error } = await supabase
         .from('orders')
-        .insert({ items, total, paid, change_amount: changeAmount, status: 'pending' })
-        .select('*')
-        .single();
+        .insert({ id: orderId, items, total, paid, change_amount: changeAmount, status: 'pending' }, { prefer: 'return=minimal' })
+        .execute();
       if (error) throw error;
-      return { success: true, id: data.id, order: normalizeOrder(data) };
+      return { success: true, id: orderId, order: normalizeOrder({ id: orderId, items, total, paid, change_amount: changeAmount, status: 'pending' }) };
     } catch (error) {
       console.error('Create order error:', error);
       throw error;
