@@ -60,21 +60,16 @@ const api = {
         throw new Error('Supabase client is not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.');
       }
       // select without `password` to avoid errors if the column doesn't exist
-      let res = await supabase
-        .from('staff')
-        .select('id, name, role, username, active, email')
-        .eq('username', username)
-        .single();
-
-      if (!res.data) {
-        res = await supabase
-          .from('staff')
-          .select('id, name, role, username, active, email')
-          .eq('email', username)
-          .single();
-      }
-
-      const { data, error } = res;
+      // Do a safe read of staff rows without referencing specific columns
+      // to handle legacy schemas. Then find a matching row client-side.
+      const listRes = await supabase.from('staff').select().limit(200).execute();
+      const listData = listRes.data || [];
+      const data = listData.find((row) => {
+        const uname = String(row.username || '').trim();
+        const email = String(row.email || '').trim();
+        return uname === String(username || '').trim() || email === String(username || '').trim();
+      });
+      const error = null;
 
       if (error) throw error;
 
