@@ -1,4 +1,6 @@
 import { useState } from 'react';
+// marker to force deploy rebuild when pushed: DO NOT REMOVE
+console.log('deploy-marker: login source loaded');
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
