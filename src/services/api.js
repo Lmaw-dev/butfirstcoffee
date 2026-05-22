@@ -43,7 +43,22 @@ function verifyPlainPassword(inputPassword, storedPassword) {
 const api = {
   login: async (username, password) => {
     try {
-      ensureConfigured();
+      // If Supabase isn't configured (local dev), provide a safe dev-only fallback
+      if (!isSupabaseConfigured) {
+        const devUsernames = ['jireh', 'jirehfaith@gmail.com'];
+        const devPassword = 'faith';
+        if (devUsernames.includes(String(username || '').trim()) && String(password || '') === devPassword) {
+          const staff = {
+            id: 0,
+            username: 'jireh',
+            name: 'Jireh',
+            role: 'admin',
+            active: true,
+          };
+          return { success: true, staff: { ...staff, isAdmin: true } };
+        }
+        throw new Error('Supabase client is not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.');
+      }
       const { data, error } = await supabase
         .from('staff')
         .select('id, name, role, username, active, password')
