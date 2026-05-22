@@ -60,11 +60,21 @@ const api = {
         throw new Error('Supabase client is not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.');
       }
       // select without `password` to avoid errors if the column doesn't exist
-      const { data, error } = await supabase
+      let res = await supabase
         .from('staff')
         .select('id, name, role, username, active, email')
-        .or(`username.eq.${username},email.eq.${username}`)
+        .eq('username', username)
         .single();
+
+      if (!res.data) {
+        res = await supabase
+          .from('staff')
+          .select('id, name, role, username, active, email')
+          .eq('email', username)
+          .single();
+      }
+
+      const { data, error } = res;
 
       if (error) throw error;
 
