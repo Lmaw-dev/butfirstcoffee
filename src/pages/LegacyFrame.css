@@ -1,0 +1,10 @@
+.legacy-frame {
+  width: 100%;
+  height: calc(100vh - 0px);
+  display: block;
+}
+.legacy-frame iframe {
+  width: 100%;
+  height: 100vh;
+  border: 0;
+}

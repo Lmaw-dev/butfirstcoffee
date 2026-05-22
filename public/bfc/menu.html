@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - But First, Coffee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #111111;
+            --paper: #f8f2e6;
+            --gold: #f3c768;
+            --gold-soft: rgba(243, 199, 104, 0.16);
+            --coffee: #704129;
+            --latte: #d8b58a;
+            --char: #1a1a1f;
+            --panel: rgba(12, 14, 20, 0.62);
+            --line: rgba(255, 255, 255, 0.14);
+            --glow: 0 24px 44px rgba(0, 0, 0, 0.28);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at 85% 5%, rgba(243, 199, 104, 0.18), transparent 38%), linear-gradient(155deg, #0f1014 0%, #15161c 48%, #111111 100%);
+            color: #f8f4ec;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: relative;
+            z-index: 2;
+            padding: 28px clamp(18px, 4vw, 56px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            font-size: 16px;
+        }
+
+        .header-brand img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid rgba(243, 199, 104, 0.45);
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 14px;
+        }
+
+        .btn-nav {
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            transition: transform 0.22s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            color: #f4e9d8;
+            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-nav:hover { transform: translateY(-2px); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px clamp(18px, 4vw, 56px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .menu-title {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .menu-title h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
+            color: #ffeccc;
+            text-shadow: 0 10px 26px rgba(0,0,0,0.4);
+        }
+
+        .menu-title p {
+            color: #d8b58a;
+            margin-top: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+
+        .menu-section {
+            background: linear-gradient(180deg, rgba(20, 20, 28, 0.6) 0%, rgba(12, 14, 20, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 28px;
+            backdrop-filter: blur(14px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .section-icon {
+            font-size: 28px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin: 0;
+        }
+
+        .section-subtitle {
+            color: #a8a8a8;
+            font-size: 11px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .menu-item {
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .menu-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-weight: 700;
+            color: #fff4dd;
+            font-size: 15px;
+            margin: 0 0 6px;
+        }
+
+        .item-desc {
+            color: #a0a0a0;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 0 0 8px;
+        }
+
+        .item-prices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .price-tag {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 6px 8px;
+            text-align: center;
+            color: #fff0cf;
+        }
+
+        .price-size {
+            display: block;
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .price-amount {
+            display: block;
+            font-weight: 700;
+            color: #f3c768;
+        }
+
+        .add-ons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;

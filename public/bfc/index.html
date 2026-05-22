@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>But First, Coffee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #111111;
+            --paper: #f8f2e6;
+            --gold: #f3c768;
+            --gold-soft: rgba(243, 199, 104, 0.16);
+            --coffee: #704129;
+            --latte: #d8b58a;
+            --char: #1a1a1f;
+            --panel: rgba(12, 14, 20, 0.62);
+            --line: rgba(255, 255, 255, 0.14);
+            --glow: 0 24px 44px rgba(0, 0, 0, 0.28);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at 85% 5%, rgba(243, 199, 104, 0.18), transparent 38%), linear-gradient(155deg, #0f1014 0%, #15161c 48%, #111111 100%);
+            color: #f8f4ec;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 20% 12%, rgba(255, 214, 143, 0.14), transparent 24%),
+                radial-gradient(circle at 80% 18%, rgba(255, 232, 180, 0.08), transparent 18%),
+                linear-gradient(115deg, rgba(255,255,255,0.03), transparent 30%, rgba(255,255,255,0.02) 70%, transparent);
+            z-index: 0;
+        }
+
+        .grain {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.08;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.9) 1px, transparent 1px);
+            background-size: 3px 3px;
+            z-index: 1;
+        }
+
+        .bg-chevron {
+            position: fixed;
+            left: 58%;
+            top: 18%;
+            transform: translate(-50%, -50%);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(180px, 24vw, 420px);
+            line-height: 0.85;
+            color: rgba(243, 199, 104, 0.24);
+            text-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            z-index: 2;
+            padding: 28px clamp(18px, 4vw, 56px) 50px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            isolation: isolate;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(243, 199, 104, 0.45);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn.dark {
+            color: #f4e9d8;
+            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn.gold {
+            color: #1f1913;
+            background: linear-gradient(120deg, #f3c768 0%, #ffe3ad 100%);
+            box-shadow: 0 10px 22px rgba(243, 199, 104, 0.35);
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+            gap: clamp(18px, 3vw, 42px);
+            align-items: center;
+            margin-top: clamp(16px, 3vw, 34px);
+        }

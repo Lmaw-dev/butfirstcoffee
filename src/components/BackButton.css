@@ -1,0 +1,19 @@
+.back-button {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  background: rgba(14, 16, 22, 0.86);
+  color: #f8f4ec;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+.back-button:hover {
+  background: rgba(29, 34, 46, 0.95);
+  transform: translateY(-1px);
+}

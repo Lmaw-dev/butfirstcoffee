@@ -1,70 +1,85 @@
-# Getting Started with Create React App
+# But First, Coffee - React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This folder contains the React version of the But First, Coffee website.
 
-## Available Scripts
+## What it does
 
-In the project directory, you can run:
+- Landing page at `/`
+- Staff login at `/login`
+- Customer menu and checkout at `/menu`
+- Admin dashboard at `/admin`
 
-### `npm start`
+The React app still talks to the PHP backend in `../bfc` for login, products, and orders.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Setup
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Install dependencies:
 
-### `npm test`
+```bash
+npm install
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Run the app locally:
 
-### `npm run build`
+```bash
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Build for production:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm run build
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## API configuration
 
-### `npm run eject`
+Set the backend URL with `REACT_APP_API_BASE` before starting or building the app.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Local example:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+REACT_APP_API_BASE=http://localhost/webdev/bfc
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Live example:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+REACT_APP_API_BASE=https://your-domain.com/bfc
+```
 
-## Learn More
+The API layer reads this value from `src/services/api.js`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Deployment notes
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Deploy the React build output from `build/`.
+- Make sure your host supports React routing or uses a rewrite to `index.html`.
+- Keep the PHP backend online at the URL you set in `REACT_APP_API_BASE`.
+- Enable CORS on the backend if the frontend and backend are on different domains.
 
-### Code Splitting
+## Free deployment options (quick)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+1. Netlify (recommended for static builds). Build locally or let Netlify build by connecting your repo to Netlify. Set build command to `npm run build`, publish directory to `build`, and add `REACT_APP_API_BASE=https://your-backend.example` in Site settings → Environment. If the backend is on a different origin, enable CORS on the PHP endpoints.
 
-### Analyzing the Bundle Size
+2. Vercel. Connect the repo, set the Framework Preset to `Create React App`, and add `REACT_APP_API_BASE` in Project Settings. Vercel provides a free subdomain and supports custom domains.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+3. Cloudflare Pages. Connect the repo, set the build command to `npm run build`, output directory to `build`, and add `REACT_APP_API_BASE` as an environment variable in the Pages settings.
 
-### Making a Progressive Web App
+4. GitHub Pages (simple, no env vars at deploy time). Run `npm run build` locally, then push the `build/` contents to the `gh-pages` branch or use the `gh-pages` package. Because you cannot set runtime env vars in static GH Pages, set `REACT_APP_API_BASE` locally before building.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Common checklist before going live:
 
-### Advanced Configuration
+- Ensure `REACT_APP_API_BASE` points to the live PHP backend URL.
+- Confirm the backend endpoints (`log-in.php`, `store-api.php`, `admin-api.php`) are reachable and CORS-enabled if needed.
+- Add HTTPS (Netlify/Vercel/Cloudflare provide certificates automatically).
+- Optionally add a custom domain and update DNS as instructed by the host.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+If you want, I can generate the exact Netlify/Vercel step-by-step with screenshots and the environment variable values you plan to use.
 
-### Deployment
+## Key files
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- `src/App.js` - React routing
+- `src/pages/Home.jsx` - Landing page
+- `src/pages/Login.jsx` - Staff login
+- `src/pages/Menu.jsx` - Ordering flow
+- `src/pages/Admin.jsx` - Admin dashboard
+- `src/services/api.js` - Backend API calls
