@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './BackButton.css';
 
 export default function BackButton({ label = 'Back', to = null }) {
@@ -16,6 +16,14 @@ export default function BackButton({ label = 'Back', to = null }) {
     }
     navigate('/');
   };
+
+  if (to) {
+    return (
+      <Link className="back-button" to={to} aria-label="Go back">
+        ← {label}
+      </Link>
+    );
+  }
 
   return (
     <button
