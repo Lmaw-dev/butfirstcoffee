@@ -128,7 +128,6 @@ export const supabase = {
 
     const builder = {
       select(columns = '*') {
-        state.method = 'GET';
         state.query.set('select', columns);
         return builder;
       },
