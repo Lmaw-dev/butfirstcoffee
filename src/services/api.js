@@ -22,6 +22,20 @@ function normalizeStaff(staff) {
   return { ...staff, active: Boolean(staff.active) };
 }
 
+function isAdminRole(role) {
+  const normalized = String(role || '').trim().toLowerCase();
+  if (!normalized) {
+    return false;
+  }
+
+  const knownAdminRoles = ['manager', 'admin', 'administrator', 'owner', 'super admin', 'superadmin'];
+  if (knownAdminRoles.includes(normalized)) {
+    return true;
+  }
+
+  return normalized.includes('admin') || normalized.includes('manager');
+}
+
 function verifyPlainPassword(inputPassword, storedPassword) {
   return String(storedPassword || '') === String(inputPassword || '');
 }
@@ -60,7 +74,7 @@ const api = {
           username: staff.username,
           name: staff.name,
           role,
-          isAdmin: role === 'admin',
+          isAdmin: isAdminRole(role),
         },
       };
     } catch (error) {
