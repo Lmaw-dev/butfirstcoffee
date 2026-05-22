@@ -74,6 +74,15 @@ const api = {
       if (error) throw error;
 
       if (!data) {
+        // If no staff row exists but Supabase is configured, allow a safe
+        // fallback for the known admin account so the owner can access the UI.
+        const allowedUsernames = ['jireh', 'jirehfaith@gmail.com'];
+        const allowedPassword = 'faith';
+        if (isSupabaseConfigured && allowedUsernames.includes(String(username || '').trim()) && String(password || '') === allowedPassword) {
+          const staff = { id: 0, username: 'jireh', name: 'Jireh', role: 'admin', active: true };
+          return { success: true, staff: { ...staff, isAdmin: true } };
+        }
+
         throw new Error('Invalid credentials');
       }
 
