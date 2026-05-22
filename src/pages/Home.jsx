@@ -15,7 +15,7 @@ export default function Home() {
           </div>
           <div className="nav-actions">
             <Link className="btn dark" to="/login">Admin Login</Link>
-            <a className="btn gold" href="/cafe">Order Now</a>
+            <Link className="btn gold" to="/cafe">Order Now</Link>
           </div>
         </nav>
 
@@ -31,8 +31,8 @@ export default function Home() {
             </div>
             <p className="sub">From iced classics to warm bakery favorites, every cup is made to keep your momentum going. Step in, slow down, and sip something worth remembering.</p>
             <div className="hero-actions">
-              <a className="btn gold" href="/cafe">Order Now</a>
-              <a className="btn dark" href="/menu">See Signature Picks</a>
+              <Link className="btn gold" to="/cafe">Order Now</Link>
+              <Link className="btn dark" to="/menu">See Signature Picks</Link>
             </div>
           </div>
 

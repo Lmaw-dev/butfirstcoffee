@@ -44,7 +44,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card">
           <div className="login-header">
-            <BackButton />
+            <BackButton to="/" />
             <h1>But First, Coffee</h1>
               <p>Admin Login</p>
           </div>
