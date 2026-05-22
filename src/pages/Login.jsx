@@ -1,6 +1,4 @@
 import { useState } from 'react';
-// marker to force deploy rebuild when pushed: DO NOT REMOVE
-console.log('deploy-marker: login source loaded');
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -8,6 +6,8 @@ import './Login.css';
 import BackButton from '../components/BackButton';
 
 export default function Login() {
+  // marker to force deploy rebuild when pushed: DO NOT REMOVE
+  console.log('deploy-marker: login source loaded');
   const [username, setUsername] = useState('jireh');
   const [password, setPassword] = useState('faith');
   const [error, setError] = useState('');
