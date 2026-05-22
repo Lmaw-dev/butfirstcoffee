@@ -6,7 +6,7 @@ import './Login.css';
 import BackButton from '../components/BackButton';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const result = await api.login(email, password);
+      const result = await api.login(username, password);
       
       if (result.success) {
         if (result.staff?.isAdmin) {
@@ -53,13 +53,14 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">Username</label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              autoComplete="username"
               required
               disabled={loading}
             />
@@ -88,7 +89,7 @@ export default function Login() {
         </form>
 
         <div className="login-footer">
-          <p>This login is for admin access only. Use the Supabase Auth user configured with role = admin.</p>
+          <p>This login is for admin access only. Use the staff username and password stored in Supabase.</p>
         </div>
       </div>
     </div>

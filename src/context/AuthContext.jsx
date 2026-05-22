@@ -1,78 +1,40 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../services/supabaseClient';
 
-function mapSupabaseUser(user) {
-  if (!user) return null;
+const userStorageKey = 'bfc_admin_user';
 
-  const role = user.user_metadata?.role || 'staff';
-
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.user_metadata?.name || user.user_metadata?.full_name || user.email,
-    role,
-    isAdmin: role === 'admin',
-  };
+function readStoredUser() {
+  try {
+    const raw = localStorage.getItem(userStorageKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_error) {
+    return null;
+  }
 }
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(() => readStoredUser());
+  const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(readStoredUser()));
 
-  // Check if user is already logged in when app loads
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        const sessionUser = mapSupabaseUser(data.session?.user);
-
-        if (sessionUser) {
-          setUser(sessionUser);
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      const sessionUser = mapSupabaseUser(session?.user);
-
-      setUser(sessionUser);
-      setIsAuthenticated(Boolean(sessionUser));
-      setLoading(false);
-
-      if (sessionUser) {
-        localStorage.setItem('user', JSON.stringify(sessionUser));
-      } else {
-        localStorage.removeItem('user');
-      }
-    });
-
-    return () => data.subscription.unsubscribe();
+    const storedUser = readStoredUser();
+    setUser(storedUser);
+    setIsAuthenticated(Boolean(storedUser));
+    setLoading(false);
   }, []);
 
   const login = (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem(userStorageKey, JSON.stringify(userData));
   };
 
   const logout = async () => {
-    try {
-      await supabase.auth.signOut();
-    } finally {
-      setUser(null);
-      setIsAuthenticated(false);
-      localStorage.removeItem('user');
-    }
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem(userStorageKey);
   };
 
   return (

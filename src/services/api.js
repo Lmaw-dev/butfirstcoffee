@@ -22,20 +22,43 @@ function normalizeStaff(staff) {
   return { ...staff, active: Boolean(staff.active) };
 }
 
+function verifyPlainPassword(inputPassword, storedPassword) {
+  return String(storedPassword || '') === String(inputPassword || '');
+}
+
 const api = {
-  login: async (email, password) => {
+  login: async (username, password) => {
     try {
       ensureConfigured();
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase
+        .from('staff')
+        .select('id, name, role, username, active, password')
+        .eq('username', username)
+        .single();
+
       if (error) throw error;
 
-      const role = data.user?.user_metadata?.role || 'staff';
+      if (!data) {
+        throw new Error('Invalid credentials');
+      }
+
+      const staff = normalizeStaff(data);
+
+      if (!staff.active) {
+        throw new Error('Admin account is inactive');
+      }
+
+      if (!verifyPlainPassword(password, data.password)) {
+        throw new Error('Invalid credentials');
+      }
+
+      const role = staff.role || 'staff';
       return {
         success: true,
         staff: {
-          id: data.user.id,
-          name: data.user.user_metadata?.name || data.user.email,
-          email: data.user.email,
+          id: staff.id,
+          username: staff.username,
+          name: staff.name,
           role,
           isAdmin: role === 'admin',
         },
