@@ -6,8 +6,8 @@ import './Login.css';
 import BackButton from '../components/BackButton';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('jireh');
+  const [password, setPassword] = useState('faith');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, logout } = useAuth();
@@ -59,7 +59,7 @@ export default function Login() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder="jireh"
               autoComplete="username"
               required
               disabled={loading}
@@ -73,7 +73,7 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="faith"
               required
               disabled={loading}
             />
